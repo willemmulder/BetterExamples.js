@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>BetterExamples.js</title>
+		<style>
+			body, html { font: 14px arial, verdana; margin: 0px; padding: 0px; color: #222233; background: #cc1919; background: #fbfbfb; }
+			h1, h2, h3, h4 { color: #cc1919; }
+			a { text-decoration: none; border: none; }
+			* { 
+				-webkit-box-sizing: border-box;
+				-moz-box-sizing: border-box;
+				box-sizing: border-box;
+			}
+			
+			.source { width: 100%; display: inline-block; background: #fafafa; padding: 10px; }
+			
+			.inline { display: inline; margin: 0px; }
+		
+			.header { width: 800px; margin: 20px auto; padding: 20px; }
+			.header a { display: block-inline; padding: 10px; }
+			.container { width: 800px; margin: 20px auto; background: #fff; padding: 20px; box-shadow: 0px 0px 5px #777; }
+			
+			.betterExample { overflow: auto; }
+			.input, .output { float: left; width: 50%; height: 140px; position: relative; padding: 0px; margin: 0px; font-family: monospace; overflow: visible; }
+			.input *, .output * { font-size: 14px; }
+			.output { padding-left: 10px; }
+		</style>
+		<script src="js/jquery-1.7.1.min.js"></script>
+		<script src="js/esprima.js"></script>
+		<script src="js/esmorph.js"></script>
+		<script src="js/betterexamples.js"></script>
+		<script>
+			$(function() {
+				example1 = new BetterExample("#input1", "#output1");
+			});
+		</script>
+	</head>
+	
+	<body>
+		<div class="header">Projects <a href='https://willemmulder.github.com/Presenteer.js/'>Presenteer.js</a> <a href='https://willemmulder.github.com/BetterExamples.js/'>BetterExamples.js</a></div>
+		<div class="container">
+			<h1>BetterExamples.js</h1>
+			<p class='source'>
+				Source code at <a href="https://github.com/willemmulder/BetterExamples.js">https://github.com/willemmulder/BetterExamples.js</a>
+			</p>
+			<h2>What does it do?</h2>
+			<p>
+				It makes live Javascript examples a great experience! Click the button below.
+			</p>
+			<p>
+			<div class='betterExample'>
+				<div id="input1" class="input">
+var a = "SomeString";
+alert(a);
+var b = 42;
+alert(b);
+var c = a + b;
+alert(c);
+invalidFunction();</div>
+				<div id="output1" class="output"></div>
+			</div>
+			</p>
+			<p>
+				<button onclick="example1.run();">Run and show BetterExamples.js in action</button>
+			</p>
+			<h2>Why do we need it?</h2>
+			<p>
+				Because it shows <strong>both</strong> logging and errors, right at the place <strong>where they are generated</strong>, while <strong>not interrupting the UI</strong>. We can't do that yet with alerts or console logging.
+			</p>
+			<p>
+				In fact, the above example would look like this in a non-BetterExample world:
+			</p>
+			<textarea style='width:100%; height: 130px;'>
+var a = "SomeString";
+alert(a);
+var b = 42;
+alert(b);
+var c = a + b;
+alert(c);
+invalidFunction();
+			</textarea>
+			<button onclick="eval($(this).prev().val());">Run this code</button>
+			<p>
+				Not a very good experience. In the first place, there's the popups which require user action, are only displayed one at the time, and are lacking a reference to the code that generated it. In the second place there is no proper information about errors. BetterExamples.js aims to fix that!
+			</p>
+			<p>
+				Hope you like it!
+			</p>
+		</div>
+	</body>
+</html>
