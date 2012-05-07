@@ -34,8 +34,6 @@ BetterExample = function(inputelm, outputelm, options) {
 	
 	var functionBackups = [];
 	
-	var catchFirstErrorForLinenumberDetection;
-	
 	var inputText = inputelm.html();
 	inputelm.addClass("betterExampleNoSetHeight");
 	inputelm.html("one line");
@@ -91,12 +89,6 @@ BetterExample = function(inputelm, outputelm, options) {
 		});
 	}
 	
-	var code = "";
-	function runCode(functionCode) {
-		var codeToRun = functionCode || code;
-		eval(codeToRun, null);
-	};
-
 	var facade = {
 		"run" : function() {
 			// Set alert or log functions to redirect to the output window
@@ -112,14 +104,6 @@ BetterExample = function(inputelm, outputelm, options) {
 			// Set error function to redirect to 'alert'
 			functionBackups["onerror"] = window.onerror;
 			window.onerror = function (message, url, lineNo) {
-				if (catchFirstErrorForLinenumberDetection === true) {
-					// First error is always meant to get the line on which it happens
-					catchFirstErrorForLinenumberDetection = false;
-					BetterExamples.documentLineNumberOfFirstInputLine['ID'] = lineNo;
-					alert(lineNo);
-					setTimeout(runCode,1);
-					return true;
-				}
 				var lineIndex = message.indexOf("Line");
 				if (lineIndex > -1) {
 					// Syntax error
@@ -131,15 +115,7 @@ BetterExample = function(inputelm, outputelm, options) {
 					if (message.indexOf("Uncaught") === 0) {
 						message = message.slice(message.indexOf(":", 8)+2);
 					}
-					// TODO: IE9 LINENUMBER
-					if ($.browser.mozilla || $.browser.msie) {
-						// Line number is not correct. It shows the lineNo within the total document, not within the eval.
-						// Thus, subtract the lineNo of the first line in the eval
-						lineNo = lineNo - (BetterExamples.documentLineNumberOfFirstInputLine['ID']-1);
-					}
-					if ($.browser.opera) {
-						//lineNo++; // Somehow, Opera reports the lineNo 1 too low (i.e. 0 based instead of 1 based)
-					}
+					lineNo = BetterExamples.pointers['ID'];
 				}
 				// Firefox : if (message.indexOf("Line") === 0) {
 				// Webkit : if (message.indexOf("Uncaught Error: Line") === 0) {
@@ -153,7 +129,7 @@ BetterExample = function(inputelm, outputelm, options) {
 				} else {
 					facade.log(message, "Syntax error");
 				}
-				return true;   
+				return true; // Error was handled
 			}
 			// Remove output
 			this.clearOutput();
@@ -162,25 +138,13 @@ BetterExample = function(inputelm, outputelm, options) {
 			// find which lines contain alert or log commands
 			var analysis = esprima.parse(input,{ range: true, loc: true });
 			var locations = [];
+			// Set pointers for every VariableDeclaration or ExpressionStatement
 			visit(analysis,function(node, parentsList) {
-				if (node.type === "CallExpression") {
-					var callee = node.callee;
-					// The structure of a callee is always CallExpression.(MemberExpression.)Identifier
-					var n = callee;
-					var functionName = "";
-					while(typeof(n.object) != "undefined") {
-						functionName = (functionName.length == 0 ? n.property.name : n.property.name + "." + functionName);
-						n = n.object;
-					}
-					functionName = (functionName.length == 0 ? n.name : n.name + "." + functionName);
-					if (functionName == "alert" || functionName == "window.alert" || functionName == "console.log") {
-						// Remember location
-						locations.push({range: node.range, location: node.loc});
-					}
-					return false; // Stop searching in this branch
+				if (node.type === "VariableDeclaration" || node.type === "ExpressionStatement") {
+					locations.push({range: node.range, location: node.loc});
 				}
 			});
-			// Insert pointer function at locations
+			// Insert pointer function at the specified locations
 			var charactersInserted = 0;
 			for(id in locations) {
 				var range = locations[id].range;
@@ -193,19 +157,7 @@ BetterExample = function(inputelm, outputelm, options) {
 				input = firstPart + func + secondPart;
 				charactersInserted += length;
 			}
-			code = input;
-			// Find line-number of first line in document (for handling certain errors that throw document line-numbers)
-			if ($.browser.msie) {
-				// Indicate that we want to catch the first error to determine the first line of this eval
-				catchFirstErrorForLinenumberDetection = true;
-				var errorFunction = "/=;"; // IE9 support. The part below does not work in IE9.
-				runCode(errorFunction);
-			} else {
-				catchFirstErrorForLinenumberDetection = false;
-				runCode("BetterExamples.documentLineNumberOfFirstInputLine['ID'] = (new Error()).lineNumber;");
-			}
-			// If a runtime-error has occurred in IE, we won't get here so the below will not be executed. The window.onerror will ensure that it will happen anyways.
-			runCode();
+			eval(input);
 			// If a runtime-error has occurred in the evaluated code, we won't get here so the below will not be executed. The window.onerror will ensure that it will happen anyways.
 			restoreFunctions();
 			positionMessages();
