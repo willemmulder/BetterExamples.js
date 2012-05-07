@@ -3,6 +3,7 @@ BetterExamples.js
 
 BetterExamples.js is a tool to make live Javascript examples a pleasant experience.  
 Works in Chrome, Firefox, Opera and IE9.  
+See http://willemmulder.github.com/BetterExamples.js/ for demos and documentation.  
 
 License
 ----------------
