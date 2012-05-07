@@ -10,7 +10,7 @@ $(function() {
 // Name = sandbox.js?
 BetterExamples = {
 	pointers : {},
-	documentLineNumberOfFirstImputLine : {}
+	documentLineNumberOfFirstInputLine : {}
 };
 BetterExample = function(inputelm, outputelm, options) {
 
@@ -29,10 +29,12 @@ BetterExample = function(inputelm, outputelm, options) {
 				scrollTop: inputelm.find("textarea").height()
 			}, 0);
 		}
-		facade.clearOutput(); 
+		facade.clearOutput(true); 
 	});
 	
 	var functionBackups = [];
+	
+	var catchFirstErrorForLinenumberDetection;
 	
 	var inputText = inputelm.html();
 	inputelm.addClass("betterExampleNoSetHeight");
@@ -40,8 +42,6 @@ BetterExample = function(inputelm, outputelm, options) {
 	var inputLineHeight = inputelm.innerHeight();
 	inputelm.html(inputText);
 	inputelm.removeClass("betterExampleNoSetHeight");
-	
-	// TODO: Couple scrolling
 	
 	function visit(node, visitFunction, parentsList) {
 		var parents = (typeof parentsList === 'undefined') ? [] : parentsList;
@@ -90,6 +90,12 @@ BetterExample = function(inputelm, outputelm, options) {
 			}
 		});
 	}
+	
+	var code = "";
+	function runCode(functionCode) {
+		var codeToRun = functionCode || code;
+		eval(codeToRun, null);
+	};
 
 	var facade = {
 		"run" : function() {
@@ -106,6 +112,14 @@ BetterExample = function(inputelm, outputelm, options) {
 			// Set error function to redirect to 'alert'
 			functionBackups["onerror"] = window.onerror;
 			window.onerror = function (message, url, lineNo) {
+				if (catchFirstErrorForLinenumberDetection === true) {
+					// First error is always meant to get the line on which it happens
+					catchFirstErrorForLinenumberDetection = false;
+					BetterExamples.documentLineNumberOfFirstInputLine['ID'] = lineNo;
+					alert(lineNo);
+					setTimeout(runCode,1);
+					return true;
+				}
 				var lineIndex = message.indexOf("Line");
 				if (lineIndex > -1) {
 					// Syntax error
@@ -117,13 +131,14 @@ BetterExample = function(inputelm, outputelm, options) {
 					if (message.indexOf("Uncaught") === 0) {
 						message = message.slice(message.indexOf(":", 8)+2);
 					}
-					if ($.browser.mozilla) {
+					// TODO: IE9 LINENUMBER
+					if ($.browser.mozilla || $.browser.msie) {
 						// Line number is not correct. It shows the lineNo within the total document, not within the eval.
 						// Thus, subtract the lineNo of the first line in the eval
-						lineNo = lineNo - (BetterExamples.documentLineNumberOfFirstImputLine['ID']-1);
+						lineNo = lineNo - (BetterExamples.documentLineNumberOfFirstInputLine['ID']-1);
 					}
 					if ($.browser.opera) {
-						lineNo++; // Somehow, Opera reports the lineNo 1 too low (i.e. 0 based instead of 1 based)
+						//lineNo++; // Somehow, Opera reports the lineNo 1 too low (i.e. 0 based instead of 1 based)
 					}
 				}
 				// Firefox : if (message.indexOf("Line") === 0) {
@@ -178,11 +193,20 @@ BetterExample = function(inputelm, outputelm, options) {
 				input = firstPart + func + secondPart;
 				charactersInserted += length;
 			}
+			code = input;
 			// Find line-number of first line in document (for handling certain errors that throw document line-numbers)
-			var addFunction = "BetterExamples.documentLineNumberOfFirstImputLine['ID'] = (new Error).lineNumber;";
-			input = addFunction + input;
-			eval(input);
-			// If an error has occurred, we won't get here so the below will not be executed. The window.onerror will ensure that it will happen anyways.
+			if ($.browser.msie) {
+				// Indicate that we want to catch the first error to determine the first line of this eval
+				catchFirstErrorForLinenumberDetection = true;
+				var errorFunction = "/=;"; // IE9 support. The part below does not work in IE9.
+				runCode(errorFunction);
+			} else {
+				catchFirstErrorForLinenumberDetection = false;
+				runCode("BetterExamples.documentLineNumberOfFirstInputLine['ID'] = (new Error()).lineNumber;");
+			}
+			// If a runtime-error has occurred in IE, we won't get here so the below will not be executed. The window.onerror will ensure that it will happen anyways.
+			runCode();
+			// If a runtime-error has occurred in the evaluated code, we won't get here so the below will not be executed. The window.onerror will ensure that it will happen anyways.
 			restoreFunctions();
 			positionMessages();
 		},
@@ -190,10 +214,15 @@ BetterExample = function(inputelm, outputelm, options) {
 			inputInnerElm.html("");
 			this.clearOutput();
 		},
-		"clearOutput" : function() { 
-			inputelm.find(".betterExamplesLine").fadeOut(function() { inputelm.find(".betterExamplesLine").remove(); });
-			outputelm.find("*").fadeOut(function() { outputelm.html(""); });
-			if (outputelm.find("*").size() == 0) {
+		"clearOutput" : function(withFade) { 
+			if (withFade) {
+				inputelm.find(".betterExamplesLine").fadeOut(function() { inputelm.find(".betterExamplesLine").remove(); });
+				outputelm.find("*").fadeOut(function() { outputelm.html(""); });
+				if (outputelm.find("*").size() == 0) {
+					outputelm.html("");
+				}
+			} else {
+				inputelm.find(".betterExamplesLine").remove();
 				outputelm.html("");
 			}
 		},
