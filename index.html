@@ -98,8 +98,20 @@ invalidFunction();
 			<p>
 				Not a very good experience. In the first place, there's the popups which require user action, are only displayed one at the time, and are lacking a reference to the code that generated it. In the second place there is no proper information about errors. BetterExamples.js aims to fix that!
 			</p>
+			<h2>How do I make it work?</h2>
 			<p>
-				Hope you like it!
+				First, you need two DOM containers next to each other. The first contains your code and is preferably a &lt;pre&gt; element, so it will show your code correctly even if Javascript is not working. The second element (a div will do) will contain the log information.
+			</p>
+			<pre>	&lt;pre class='input' id='input1'&gt;somecode&lt;/pre&gt; &lt;div class='output' id='output1'/&gt;</pre>
+			<p>
+				Second, you load jQuery, Esprima and BetterExamples and run and example by doing
+			</p>
+<pre>	$(function() {
+		example = new BetterExample("#input1", "#output1");
+		example.run();
+	});</pre>
+			<p>
+				That's it. Hope you like it!
 			</p>
 		</div>
 	</body>
