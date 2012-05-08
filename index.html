@@ -30,7 +30,7 @@
 		<script src="js/betterexamples.js"></script>
 		<script>
 			$(function() {
-				example1 = new BetterExample("#input1", "#output1");
+				example1 = new BetterExample("#input1", "#output1", {id:"input1"});
 			});
 		</script>
 		<script type="text/javascript">
@@ -73,7 +73,7 @@ invalidFunction();</pre>
 			</div>
 			</p>
 			<p>
-				<button onclick="example1.run();">Run and show BetterExamples.js in action</button>
+				<button onclick="BetterExamples.getInstance('input1').run();">Run and show BetterExamples.js in action</button>
 			</p>
 			<h2>Why do we need it?</h2>
 			<p>
