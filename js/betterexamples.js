@@ -21,6 +21,8 @@ BetterExample = function(inputelm, outputelm, options) {
 	var options = options || {};
 
 	var id =  options.id || "instance_" + Math.floor(Math.random()*100000000000);
+	var inDebug = false;
+	var sleepingForDebug = false;
 
 	var inputelm = $(inputelm);
 	var outputelm = $(outputelm);
@@ -97,8 +99,37 @@ BetterExample = function(inputelm, outputelm, options) {
 		});
 	}
 	
+	function drawDebugBar() {
+		ielm = inputelm.find(".betterExamplesDebugBar").first();
+		oelm = outputelm.find(".betterExamplesDebugBar").first();
+		var line = BetterExamples.pointers[id];
+		if (ielm.length == 0) {
+			var start = "<div class='betterExamplesDebugBar' line='" + line + "' style='background: #ffa; position:absolute; left: 0px; top:" + (inputLineHeight*(line-1)) + "px; height: " + inputLineHeight + "px; display: block; width: 100%; z-index: 2; overflow: hidden;'>";
+			var end = "</div>";
+			outputelm.append(start+"&nbsp;"+end);
+			inputelm.prepend(start+"&nbsp;"+end);
+		} else {
+			// existing bar
+			ielm.add(oelm).attr("line", line);
+			ielm.add(oelm).css("top", (inputLineHeight*(line-1)) + "px");
+		}
+	}
+	
+	function removeDebugBar() {
+		outputelm.find(".betterExamplesDebugBar").remove();
+		inputelm.find(".betterExamplesDebugBar").remove();
+	}
+	
 	var facade = {
+		"debug" : function() {
+			inDebug = true;
+			this.run();
+			inDebug = false;
+			removeDebugBar();
+		},
 		"run" : function() {
+			// Set linePointer to the first line
+			BetterExamples.pointers[id] = 1;
 			// Set alert or log functions to redirect to the output window
 			var instance = this;
 			functionBackups["alert"] = window.alert;
@@ -157,7 +188,7 @@ BetterExample = function(inputelm, outputelm, options) {
 			for(locationId in locations) {
 				var range = locations[locationId].range;
 				var location = locations[locationId].location;
-				var func = "BetterExamples.pointers['" + id + "'] = "+location.start.line+";";
+				var func = "BetterExamples.pointers['" + id + "'] = "+location.start.line+"; BetterExamples.getInstance('" + id + "').enterStep();";
 				var length = func.length;
 				var firstPart = input.slice(0,range[0]+charactersInserted);
 				var secondPart = input.slice(range[0]+charactersInserted);
@@ -191,12 +222,14 @@ BetterExample = function(inputelm, outputelm, options) {
 			var extraStyle = "";
 			if (type.indexOf("error")>-1) { extraStyle = "background: #CC1919; color: #fff;" }
 			var line = BetterExamples.pointers[id];
-			var start = "<div class='betterExamplesLine' line='" + line + "' style='background: #eef; position:absolute; left: 0px; top:" + (inputLineHeight*(line-1)) + "px; height: " + inputLineHeight + "px; display: block; width: 100%; z-index: 1; overflow: hidden;' onMouseOver='$(this).attr(\"backupHeight\",$(this).css(\"height\")); $(this).css(\"height\",\"auto\").css(\"z-index\",\"100\")' onMouseOut='$(this).css(\"height\",$(this).attr(\"backupHeight\")).css(\"z-index\",\"1\")'>";
-			var output = "<div style='width: 130px; background: #dde; "+ extraStyle + " display: inline-block;'>" + type + "</div> ";
+			var start = function(zindex) {
+				return "<div class='betterExamplesLine' line='" + line + "' style='background: #eef; position:absolute; left: 0px; top:" + (inputLineHeight*(line-1)) + "px; height: " + inputLineHeight + "px; display: block; width: 100%; z-index: " + zindex + "; overflow: hidden;' onMouseOver='$(this).attr(\"backupZindex\",$(this).css(\"z-index\")); $(this).attr(\"backupHeight\",$(this).css(\"height\")); $(this).css(\"height\",\"auto\").css(\"z-index\",\"100\")' onMouseOut='$(this).css(\"height\",$(this).attr(\"backupHeight\")).css(\"z-index\",$(this).attr(\"backupZindex\"))'>";
+			}
+			var output = "<div style='width: 130px; background: #dde; "+ extraStyle + " display: inline-block; z-index: 3;'>" + type + "</div> ";
 			output += JSON.stringify(obj, null, 4);
 			var end = "</div>";
-			outputelm.append(start + output + end);
-			inputelm.prepend(start+"&nbsp"+end);
+			outputelm.append(start(3) + output + end);
+			inputelm.prepend(start(1) + "&nbsp;" + end);
 		},
 		"getId" : function() {
 			return id;
@@ -205,6 +238,28 @@ BetterExample = function(inputelm, outputelm, options) {
 			delete BetterExamples.instances[id];
 			id = newId;
 			BetterExamples.instances[id] = facade;
+		},
+		"enterStep" : function() {
+			// If we are in debug mode, then 'sleep' until we can get to the next step
+			if (inDebug) {
+				drawDebugBar();
+				//sleepingForDebug = true; // To be used with while loops if that turns out to be more useful
+				var returnValue = window.showModalDialog("js/debug.html",null,"dialogleft:0;dialogtop:0;dialogheight:20;dialogwidth:200"); // UI will sleep as long as the modal dialog is open
+				if (returnValue == "nextStep") {
+					// continue
+				} else if (returnValue == "exitDebug") {
+					inDebug = false;
+					removeDebugBar();
+					// continue
+				} else {
+					inDebug = false; // If anything goes wrong, just get out of debug and don't open the window again and again and again
+					removeDebugBar();
+					// continue
+				}
+			}
+		},
+		"goToNextStep" : function() {
+			//sleepingForDebug = false;
 		}
 	};
 	BetterExamples.instances[id] = facade;
