@@ -17,7 +17,7 @@ BetterExample = function(inputelm, outputelm, options) {
 	var inputelm = $(inputelm);
 	var outputelm = $(outputelm);
 	// use wrap="off" because white-space: nowrap does not function correctly in IE
-	var inputInnerElm = $("<textarea style='outline: none; z-index:10; position: relative; width: 100%; height: 95%; background: rgba(255,255,255,0); border: none; text-decoration: none; overflow: hidden;' wrap='off'></textarea>");
+	var inputInnerElm = $("<textarea style='outline: none; z-index:10; position: relative; width: 100%; height: 95%; background: rgba(255,255,255,0); border: none; text-decoration: none; overflow-y: hidden; overflow-x: auto;' wrap='off'></textarea>");
 	inputInnerElm.html(inputelm.html());
 	inputelm.html(inputInnerElm);
 	inputelm.on("keyup", function(event) { 
