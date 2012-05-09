@@ -51,6 +51,9 @@ BetterExample = function(inputelm, outputelm, options) {
 	inputelm.html(inputText);
 	inputelm.removeClass("betterExampleNoSetHeight");
 	
+	// Set height of textarea to fit the content
+	inputelm.find("textarea").css("height", inputelm.find("textarea").get(0).scrollHeight + "px"); 
+	
 	function visit(node, visitFunction, parentsList) {
 		var parents = (typeof parentsList === 'undefined') ? [] : parentsList;
 	
@@ -84,9 +87,15 @@ BetterExample = function(inputelm, outputelm, options) {
 	function positionMessages() {
 		// Loop over the error messages and show as much of their info as possible (i.e. without overlapping other messages)
 		outputelm.find(".betterExamplesLine").each(function() {
-			var next = $(this).nextAll(".betterExamplesLine");
-			if (next.length > 0) {
-				var space = $(next).attr("line") - $(this).attr("line");
+			var currentLineNumber = $(this).attr("line");
+			var lowestNextLineNumber = -1;
+			$(this).siblings(".betterExamplesLine").each(function() {
+				if ($(this).attr("line") > currentLineNumber && (lowestNextLineNumber == -1 || lowestNextLineNumber > $(this).attr("line")) ) {
+					lowestNextLineNumber = $(this).attr("line");
+				}
+			});
+			if (lowestNextLineNumber != -1) {
+				var space = lowestNextLineNumber - $(this).attr("line");
 				// See how much height the element would take
 				$(this).css("height", "auto");
 				// Now restrict the height if the height=auto would take up more height than there is space
@@ -226,7 +235,14 @@ BetterExample = function(inputelm, outputelm, options) {
 				return "<div class='betterExamplesLine' line='" + line + "' style='background: #eef; position:absolute; left: 0px; top:" + (inputLineHeight*(line-1)) + "px; height: " + inputLineHeight + "px; display: block; width: 100%; z-index: " + zindex + "; overflow: hidden;' onMouseOver='$(this).attr(\"backupZindex\",$(this).css(\"z-index\")); $(this).attr(\"backupHeight\",$(this).css(\"height\")); $(this).css(\"height\",\"auto\").css(\"z-index\",\"100\")' onMouseOut='$(this).css(\"height\",$(this).attr(\"backupHeight\")).css(\"z-index\",$(this).attr(\"backupZindex\"))'>";
 			}
 			var output = "<div style='width: 130px; background: #dde; "+ extraStyle + " display: inline-block; z-index: 3;'>" + type + "</div> ";
-			output += JSON.stringify(obj, null, 4);
+			if (obj instanceof Function) {
+				var func = obj.toString();
+				// Remove any pointer-calls
+				func = func.replace(/BetterExamples\.pointers\[\'[^\']+\'\] \= [0-9]+\;/ig, "");
+				output += func;
+			} else {
+				output += JSON.stringify(obj, null, 4);
+			}
 			var end = "</div>";
 			outputelm.append(start(3) + output + end);
 			inputelm.prepend(start(1) + "&nbsp;" + end);
