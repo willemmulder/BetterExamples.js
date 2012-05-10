@@ -25,6 +25,12 @@ BetterExample = function(inputelm, outputelm, options) {
 	var sleepingForDebug = false;
 
 	var inputelm = $(inputelm);
+	// Return existing instance if present
+	if (inputelm.attr("betterexamplesid") && BetterExamples.getInstance(inputelm.attr("betterexamplesid"))) {
+		return BetterExamples.getInstance(inputelm.attr("betterexamplesid"));
+	} else {
+		inputelm.attr("betterexamplesid", id);
+	}
 	var outputelm = $(outputelm);
 	// use wrap="off" because white-space: nowrap does not function correctly in IE
 	var inputInnerElm = $("<textarea style='outline: none; z-index:10; position: relative; width: 100%; height: 95%; background: rgba(255,255,255,0); border: none; text-decoration: none; overflow-y: hidden; overflow-x: auto;' wrap='off'></textarea>");
