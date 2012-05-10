@@ -47,7 +47,7 @@ BetterExample = function(inputelm, outputelm, options) {
 	var inputText = inputelm.html();
 	inputelm.addClass("betterExampleNoSetHeight");
 	inputelm.html("one line");
-	var inputLineHeight = inputelm.innerHeight();
+	var inputLineHeight = inputelm.height();
 	inputelm.html(inputText);
 	inputelm.removeClass("betterExampleNoSetHeight");
 	
