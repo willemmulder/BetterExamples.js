@@ -245,6 +245,7 @@ BetterExample = function(inputelm, outputelm, options) {
 				var func = obj.toString();
 				// Remove any pointer-calls
 				func = func.replace(/BetterExamples\.pointers\[\'[^\']+\'\] \= [0-9]+\;/ig, "");
+				func = func.replace(/BetterExamples\.getInstance\([^\)]+\)\.enterStep\(\)+\;/ig, "");
 				output += func;
 			} else {
 				output += JSON.stringify(obj, null, 4);
