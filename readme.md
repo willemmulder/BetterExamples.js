@@ -14,7 +14,9 @@ http://creativecommons.org/licenses/by-sa/3.0/
 Version
 -----------------
 Trunk  
-> todo Make BetterExamples.js work with CodeMirror  
+- todo Make BetterExamples.js work with CodeMirror  
+- save edited code with localStorage
+- make control+R run the code
 1.0  
 + Catch errors and log messages  
 + Show errors and log messages at appropriate line  
