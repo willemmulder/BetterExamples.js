@@ -17,6 +17,7 @@ Trunk
 - todo Make BetterExamples.js work with CodeMirror  
 - save edited code with localStorage  
 - make control+R run the code  
+  
 1.0  
 + Catch errors and log messages  
 + Show errors and log messages at appropriate line  
