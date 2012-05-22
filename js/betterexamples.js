@@ -194,8 +194,14 @@ BetterExample = function(inputelm, outputelm, options) {
 			var locations = [];
 			// Set pointers for every VariableDeclaration or ExpressionStatement
 			visit(analysis,function(node, parentsList) {
-				if (node.type === "VariableDeclaration" || node.type === "ExpressionStatement") {
-					locations.push({range: node.range, location: node.loc});
+				if (node.type === "ForStatement" || node.type === "VariableDeclaration" || node.type === "ExpressionStatement") {
+					if (node.type === "VariableDeclaration" && parentsList.length && parentsList[0].type == "ForStatement") {
+						// Variable declaration within the declaration of a for-loop. Don't add any functions there, it will result in error.
+					} else {
+						locations.push({range: node.range, location: node.loc});
+					}
+					// TODO: at the end of a FOR statement, add a log to the first line, since there might be an error in the increment-operation which will show on wrong line
+					// for(x=1;x<10;x+=unknown) { ... } // Will produce error on wrong line
 				}
 			});
 			// Insert pointer function at the specified locations
