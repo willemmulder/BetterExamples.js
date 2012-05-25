@@ -7,10 +7,7 @@ $(function() {
 	$("body").append("<style>.betterExampleNoSetHeight { height: auto !important; }</style>");
 });
 
-// Name = sandbox.js?
 BetterExamples = {
-	pointers : {},
-	documentLineNumberOfFirstInputLine : {},
 	instances : {},
 	getInstance : function(id) {
 		return this.instances[id];
@@ -23,6 +20,8 @@ BetterExample = function(inputelm, outputelm, options) {
 	var id =  options.id || "instance_" + Math.floor(Math.random()*100000000000);
 	var inDebug = false;
 	var sleepingForDebug = false;
+	
+	var currentLine;
 
 	var inputelm = $(inputelm);
 	// Return existing instance if present
@@ -117,7 +116,7 @@ BetterExample = function(inputelm, outputelm, options) {
 	function drawDebugBar() {
 		ielm = inputelm.find(".betterExamplesDebugBar").first();
 		oelm = outputelm.find(".betterExamplesDebugBar").first();
-		var line = BetterExamples.pointers[id];
+		var line = currentLine;
 		if (ielm.length == 0) {
 			var start = "<div class='betterExamplesDebugBar' line='" + line + "' style='background: #ffa; position:absolute; left: 0px; top:" + (inputLineHeight*(line-1)) + "px; height: " + inputLineHeight + "px; display: block; width: 100%; z-index: 2; overflow: hidden;'>";
 			var end = "</div>";
@@ -144,7 +143,7 @@ BetterExample = function(inputelm, outputelm, options) {
 		},
 		"run" : function() {
 			// Set linePointer to the first line
-			BetterExamples.pointers[id] = 1;
+			currentLine = 1;
 			// Set alert or log functions to redirect to the output window
 			var instance = this;
 			functionBackups["alert"] = window.alert;
@@ -162,19 +161,19 @@ BetterExample = function(inputelm, outputelm, options) {
 				if (lineIndex > -1) {
 					// Syntax error
 					var until = message.indexOf(":",lineIndex);
-					lineNo = message.slice(lineIndex+4, until);
+					currentLine = message.slice(lineIndex+4, until);
 					message = message.slice(until+2);
 				} else {
 					// Runtime error
 					if (message.indexOf("Uncaught") === 0) {
 						message = message.slice(message.indexOf(":", 8)+2);
 					}
-					lineNo = BetterExamples.pointers[id];
+					// Display at current line
+					// Alternatively get from function: currentLine = lineNo;
 				}
 				// Firefox : if (message.indexOf("Line") === 0) {
 				// Webkit : if (message.indexOf("Uncaught Error: Line") === 0) {
 				// Opera : if (message.indexOf("Uncaught exception: Error: Line") === 0) {
-				BetterExamples.pointers[id] = lineNo;
 				if (lineIndex == -1) {
 					facade.log(message, "Runtime error");
 					// Restore functions and position messages. There will be no extra messages anyway, since a runtime error stops execution.
@@ -209,7 +208,7 @@ BetterExample = function(inputelm, outputelm, options) {
 			for(locationId in locations) {
 				var range = locations[locationId].range;
 				var location = locations[locationId].location;
-				var func = "BetterExamples.pointers['" + id + "'] = "+location.start.line+"; BetterExamples.getInstance('" + id + "').enterStep();";
+				var func = "BetterExamples.getInstance('" + id + "').enterStep(" + location.start.line + ");";
 				var length = func.length;
 				var firstPart = input.slice(0,range[0]+charactersInserted);
 				var secondPart = input.slice(range[0]+charactersInserted);
@@ -242,7 +241,7 @@ BetterExample = function(inputelm, outputelm, options) {
 			type = type.charAt(0).toUpperCase() + type.slice(1); // Capitalize first character
 			var extraStyle = "";
 			if (type.indexOf("error")>-1) { extraStyle = "background: #CC1919; color: #fff;" }
-			var line = BetterExamples.pointers[id];
+			var line = currentLine;
 			var start = function(zindex) {
 				return "<div class='betterExamplesLine' line='" + line + "' style='background: #eef; position:absolute; left: 0px; top:" + (inputLineHeight*(line-1)) + "px; height: " + inputLineHeight + "px; display: block; width: 100%; z-index: " + zindex + "; overflow: hidden;' onMouseOver='$(this).attr(\"backupZindex\",$(this).css(\"z-index\")); $(this).attr(\"backupHeight\",$(this).css(\"height\")); $(this).css(\"height\",\"auto\").css(\"z-index\",\"100\")' onMouseOut='$(this).css(\"height\",$(this).attr(\"backupHeight\")).css(\"z-index\",$(this).attr(\"backupZindex\"))'>";
 			}
@@ -250,8 +249,7 @@ BetterExample = function(inputelm, outputelm, options) {
 			if (obj instanceof Function) {
 				var func = obj.toString();
 				// Remove any pointer-calls
-				func = func.replace(/BetterExamples\.pointers\[\'[^\']+\'\] \= [0-9]+\;/ig, "");
-				func = func.replace(/BetterExamples\.getInstance\([^\)]+\)\.enterStep\(\)+\;/ig, "");
+				func = func.replace(/BetterExamples\.getInstance\([^\)]+\)\.enterStep\([0-9]+\)+\;/ig, "");
 				output += func;
 			} else {
 				output += JSON.stringify(obj, null, 4);
@@ -268,7 +266,9 @@ BetterExample = function(inputelm, outputelm, options) {
 			id = newId;
 			BetterExamples.instances[id] = facade;
 		},
-		"enterStep" : function() {
+		"enterStep" : function(lineNumber) {
+			// Set lineNumber
+			currentLine = lineNumber;
 			// If we are in debug mode, then 'sleep' until we can get to the next step
 			if (inDebug) {
 				drawDebugBar();
