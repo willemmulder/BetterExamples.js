@@ -21,6 +21,7 @@ BetterExample = function(inputelm, outputelm, options) {
 	var inDebug = false;
 	var sleepingForDebug = false;
 	var textAreaLength = -1;
+	var originalTextAreaContent = "";
 	
 	var currentLine;
 
@@ -34,7 +35,9 @@ BetterExample = function(inputelm, outputelm, options) {
 	var outputelm = $(outputelm);
 	// use wrap="off" because white-space: nowrap does not function correctly in IE
 	var inputInnerElm = $("<textarea style='outline: none; z-index:10; position: relative; width: 100%; height: 95%; background: rgba(255,255,255,0); border: none; text-decoration: none; overflow-y: hidden; overflow-x: auto;' wrap='off'></textarea>");
-	inputInnerElm.html(inputelm.html());
+	// Save originalTextAreaContent for restore
+	originalTextAreaContent = inputelm.html();
+	inputInnerElm.html(originalTextAreaContent);
 	inputelm.html(inputInnerElm);
 	// Catch Control+R or F9 to run code
 	inputelm.on("keydown", function(event) {
@@ -239,8 +242,12 @@ BetterExample = function(inputelm, outputelm, options) {
 			restoreFunctions();
 			positionMessages();
 		},
+		"restoreCode" : function() {
+			this.clear();
+			inputelm.find("textarea").val(originalTextAreaContent);
+		},
 		"clear" : function() { 
-			inputInnerElm.html("");
+			inputelm.find("textarea").val("");
 			this.clearOutput();
 		},
 		"clearOutput" : function(withFade) { 

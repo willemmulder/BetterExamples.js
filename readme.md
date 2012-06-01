@@ -16,6 +16,8 @@ Version
 Trunk  
 - todo Make BetterExamples.js work with CodeMirror  
 - todo save edited code with localStorage
+- todo 
++ Control+R or F9 runs the code  
   
 1.0  
 + Catch errors and log messages  
@@ -23,4 +25,3 @@ Trunk
 + Make proper scrolling work for longer code
 + Work in Chrome, Firefox, Opera and IE9  
 + Step-debug mode (thanks Alex Young for the idea)
-+ Control+R or F9 runs the code  
