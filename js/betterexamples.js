@@ -186,7 +186,9 @@ BetterExample = function(inputelm, outputelm, options) {
 			}
 			// Remove output
 			this.clearOutput();
-			// Run the input and render the output
+			//==
+			// Run the input, insert line-pointers and render the output
+			//==
 			var input = inputelm.find("textarea").val();
 			// find which lines contain alert or log commands
 			var analysis = esprima.parse(input,{ range: true, loc: true });
@@ -194,6 +196,9 @@ BetterExample = function(inputelm, outputelm, options) {
 			// Set pointers for every VariableDeclaration or ExpressionStatement
 			visit(analysis,function(node, parentsList) {
 				if (node.type === "ForStatement" || node.type === "VariableDeclaration" || node.type === "ExpressionStatement") {
+					// There is some situations in which we don't want to add pointers because they break the code
+					// 1. Directly after {}-less if statements. Indeed, our pointer call would be the first call and the original call would allways be executed.
+					// 2. Within a for() construct. There's only three statements allowed, and that's it.
 					if (node.type === "VariableDeclaration" && parentsList.length && parentsList[0].type == "ForStatement") {
 						// Variable declaration within the declaration of a for-loop. Don't add any functions there, it will result in error.
 					} else {
