@@ -20,6 +20,7 @@ BetterExample = function(inputelm, outputelm, options) {
 	var id =  options.id || "instance_" + Math.floor(Math.random()*100000000000);
 	var inDebug = false;
 	var sleepingForDebug = false;
+	var textAreaLength = -1;
 	
 	var currentLine;
 
@@ -35,16 +36,29 @@ BetterExample = function(inputelm, outputelm, options) {
 	var inputInnerElm = $("<textarea style='outline: none; z-index:10; position: relative; width: 100%; height: 95%; background: rgba(255,255,255,0); border: none; text-decoration: none; overflow-y: hidden; overflow-x: auto;' wrap='off'></textarea>");
 	inputInnerElm.html(inputelm.html());
 	inputelm.html(inputInnerElm);
-	inputelm.on("keyup", function(event) { 
-		var firstHeight = inputelm.find("textarea").height();
-		inputelm.find("textarea").css("height", inputelm.find("textarea").get(0).scrollHeight + "px"); 
-		// If textarea was expanded, scroll to bottom of parent element
-		if (inputelm.find("textarea").height() > firstHeight) {
-			inputelm.parent().animate({
-				scrollTop: inputelm.find("textarea").height()
-			}, 0);
+	// Catch Control+R or F9 to run code
+	inputelm.on("keydown", function(event) {
+		textAreaLength = inputelm.find("textarea").val().length;
+		if ((event.which == "82" && event.ctrlKey) || event.which == "120") {
+			event.preventDefault();
+			event.stopPropagation();
+			facade.run();
 		}
-		facade.clearOutput(true); 
+	});
+	// Catch keydowns, blur and focus to check for code-changes
+	inputelm.on("keyup focusin focusout", function(event) {
+		// Only run if textArea has actually changed
+		if (textAreaLength != inputelm.find("textarea").val().length) {
+			var firstHeight = inputelm.find("textarea").height();
+			inputelm.find("textarea").css("height", inputelm.find("textarea").get(0).scrollHeight + "px"); 
+			// If textarea was expanded, scroll to bottom of parent element
+			if (inputelm.find("textarea").height() > firstHeight) {
+				inputelm.parent().animate({
+					scrollTop: inputelm.find("textarea").height()
+				}, 0);
+			}
+			facade.clearOutput(true); 
+		}
 	});
 	
 	var functionBackups = [];
