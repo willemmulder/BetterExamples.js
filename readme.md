@@ -14,14 +14,16 @@ http://creativecommons.org/licenses/by-sa/3.0/
 Version
 -----------------
 Trunk  
-- todo Make BetterExamples.js work with CodeMirror  
-- todo save edited code with localStorage
 + Control+R or F9 runs the code  
 + One can restore edited code to the original example code  
+
+* Todo
+  * Make BetterExamples.js work with CodeMirror  
+  * Save edited code with localStorage
   
-1.0  
-+ Catch errors and log messages  
-+ Show errors and log messages at appropriate line  
-+ Make proper scrolling work for longer code
-+ Work in Chrome, Firefox, Opera and IE9  
-+ Step-debug mode (thanks Alex Young for the idea)
+* 1.0  
+  + Catch errors and log messages  
+  + Show errors and log messages at appropriate line  
+  + Make proper scrolling work for longer code
+  + Work in Chrome, Firefox, Opera and IE9  
+  + Step-debug mode (thanks Alex Young for the idea)
