@@ -14,12 +14,12 @@ http://creativecommons.org/licenses/by-sa/3.0/
 Version
 -----------------
 Trunk  
-+ Control+R or F9 runs the code  
-+ One can restore edited code to the original example code  
-
+  + Control+R or F9 runs the code  
+  + One can restore edited code to the original example code  
+  
 * Todo
   * Make BetterExamples.js work with CodeMirror  
-  * Save edited code with localStorage
+  * Save edited code with localStorage  
   
 * 1.0  
   + Catch errors and log messages  
