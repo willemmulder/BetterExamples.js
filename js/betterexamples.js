@@ -4,7 +4,7 @@
 */
 
 $(function() {
-	$("body").append("<style>.betterExampleNoSetHeight { height: auto !important; }</style>");
+	$("body").append("<style> .betterExampleNoSetHeight { height: auto !important; } .betterExampleVisible { display: block !important; visibility: visible !important; } </style>");
 });
 
 BetterExamples = {
@@ -48,8 +48,8 @@ BetterExample = function(inputelm, outputelm, options) {
 			facade.run();
 		}
 	});
-	// Catch keydowns, blur and focus to check for code-changes
-	inputelm.on("keyup focusin focusout", function(event) {
+	
+	function fitToScrollHeight() {
 		// Only run if textArea has actually changed
 		if (textAreaLength != inputelm.find("textarea").val().length) {
 			var firstHeight = inputelm.find("textarea").height();
@@ -60,18 +60,34 @@ BetterExample = function(inputelm, outputelm, options) {
 					scrollTop: inputelm.find("textarea").height()
 				}, 0);
 			}
-			facade.clearOutput(true); 
 		}
+	}
+	// Catch keydowns, blur and focus to check for code-changes
+	inputelm.on("keyup focusin focusout", function(event) {
+		fitToScrollHeight();
+		facade.clearOutput(true); 
 	});
 	
 	var functionBackups = [];
 	
-	var inputText = inputelm.html();
-	inputelm.addClass("betterExampleNoSetHeight");
-	inputelm.html("one line");
-	var inputLineHeight = inputelm.height();
-	inputelm.html(inputText);
-	inputelm.removeClass("betterExampleNoSetHeight");
+	var checkelm = inputelm.find("textarea");
+	var inputText = checkelm.html();
+	checkelm.addClass("betterExampleNoSetHeight");
+	// We need multiple lines in the textarea in order to push the scrollHeight above the 'auto' height of a standard textarea
+	// as to obtain a scrollHeight that is determined by the height of the lines instead of the 'auto' height
+	checkelm.html("line 1\r\nline 2\r\nline 3\r\nline 4\r\nline 5\r\nline 6\r\nline 7\r\nline 8\r\nline 9\r\nline 10");
+	var inputLineHeight = checkelm.get(0).scrollHeight / 10;
+	if (!inputLineHeight) {
+		// Element is (probably) hidden. Show the element, and all of its parents, and afterwards hide them again
+		checkelm.parents().addClass("betterExampleVisible");
+		inputLineHeight = checkelm.get(0).scrollHeight / 10;
+		checkelm.html(inputText);
+		fitToScrollHeight();
+		checkelm.parents().removeClass("betterExampleVisible");
+	} else {
+		checkelm.html(inputText);
+	}
+	checkelm.removeClass("betterExampleNoSetHeight");
 	
 	// Set height of textarea to fit the content
 	inputelm.find("textarea").css("height", inputelm.find("textarea").get(0).scrollHeight + "px"); 
@@ -256,7 +272,7 @@ BetterExample = function(inputelm, outputelm, options) {
 				outputelm.find("*").fadeOut(function() { outputelm.html(""); });
 				if (outputelm.find("*").size() == 0) {
 					outputelm.html("");
-				}
+				}	
 			} else {
 				inputelm.find(".betterExamplesLine").remove();
 				outputelm.html("");

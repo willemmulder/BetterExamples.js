@@ -16,8 +16,8 @@ Version
 Trunk  
 - todo Make BetterExamples.js work with CodeMirror  
 - todo save edited code with localStorage
-- todo 
 + Control+R or F9 runs the code  
++ One can restore edited code to the original example code  
   
 1.0  
 + Catch errors and log messages  
