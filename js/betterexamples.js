@@ -262,6 +262,13 @@ BetterExample = function(inputelm, outputelm, options) {
 			this.clear();
 			inputelm.find("textarea").val(originalTextAreaContent);
 		},
+		"setCode" : function(code) {
+			this.clear();
+			inputelm.find("textarea").val(code);
+			setTimeout(function() {
+				fitToScrollHeight();
+			},1);
+		},
 		"clear" : function() { 
 			inputelm.find("textarea").val("");
 			this.clearOutput();
