@@ -384,7 +384,6 @@ BetterExample = function(inputelm, outputelm, options) {
 			if (type.indexOf("error")>-1) { extraStyle = "background: #CC1919; color: #fff;" }
 			var line = currentLine;
 			var offsetTop = inputFieldFunctions.getLinesOffsetTop();
-			document.title = offsetTop;
 			var start = function(zindex, passedOffsetTop) {
 				return "<div class='betterExamplesLine' line='" + line + "' style='background: #eef; position:absolute; left: 0px; top:" + (passedOffsetTop + (inputLineHeight*(line-1))) + "px; height: " + inputLineHeight + "px; display: block; width: 100%; z-index: " + zindex + "; overflow: hidden;' onMouseOver='$(this).attr(\"backupZindex\",$(this).css(\"z-index\")); $(this).attr(\"backupHeight\",$(this).css(\"height\")); $(this).css(\"height\",\"auto\").css(\"z-index\",\"100\")' onMouseOut='$(this).css(\"height\",$(this).attr(\"backupHeight\")).css(\"z-index\",$(this).attr(\"backupZindex\"))'>";
 			}
