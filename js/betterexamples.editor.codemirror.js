@@ -4,6 +4,7 @@
 */
 
 BetterExamples.editors.codemirror = function(inputelm) {
+	//var height = $(inputelm).height();
 	var editor = CodeMirror.fromTextArea(
 		$(inputelm).get(0), {
 			lineNumbers: true,
@@ -13,13 +14,15 @@ BetterExamples.editors.codemirror = function(inputelm) {
 	);
 	editor.setValue(inputelm.html());
 	$(editor.getWrapperElement()).addClass("input");
+	editor.setSize(null, "auto");
 
 	var facade = { 
 		getInputWrapper : function() {
-			return $(editor.getWrapperElement()).find(".CodeMirror-lines > div:first > div:last");
+			return $(editor.getWrapperElement()).find(".CodeMirror-lines > div:first");
 		},
 		getEventWrapper : function() {
-			return $(editor.getWrapperElement()).closest(".CodeMirror.input");
+			return $(editor.getWrapperElement()).closest(".CodeMirror.input")
+			.add( $(editor.getWrapperElement()).find(".CodeMirror-cursor") );
 		},
 		getValue : function() {
 			return editor.getValue();
@@ -37,13 +40,13 @@ BetterExamples.editors.codemirror = function(inputelm) {
 			return absoluteLinesOffsetTop - wrapperOffsetTop;
 		},
 		fitToScrollHeight : function() { 
-			// Is this even supported?
+			// Happens automatically, because height is set to "auto"
 		},
 		isClearingWithFade : function() {
-			return false;
+			return true;
 		},
 		prependContent : function(content) {
-			facade.getInputWrapper().prepend($(content).css("z-index", "-1"));
+			$(editor.getWrapperElement()).find(".CodeMirror-lines  > div:first").prepend($(content).css("z-index", "-1"));
 		}
 	};
 

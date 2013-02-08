@@ -51,14 +51,14 @@ BetterExample = function(inputelm, outputelm, options) {
 	
 	// Catch keydowns, blur and focus to check for code-changes
 	// Catch Control+R or F9 to run code
-	inputFieldFunctions.getEventWrapper().on("keydown focusin", function(event) {
-		inputFieldValueLength = inputFieldFunctions.getValueLength();
+	inputFieldFunctions.getEventWrapper().on("keydown", function(event) {
 		if ((event.which == "82" && event.ctrlKey) || event.which == "120") {
 			event.preventDefault();
 			event.stopPropagation();
 			facade.run();
 		} else {
 			fitToScrollHeight();
+			inputFieldValueLength = inputFieldFunctions.getValueLength();
 			facade.clearOutput(inputFieldFunctions.isClearingWithFade()); 
 		}
 	});

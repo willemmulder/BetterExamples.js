@@ -19,7 +19,7 @@ BetterExamples.editors.default = function(inputelm) {
 			return inputelm;
 		},
 		getValue : function() {
-			return inputelm.find("textarea").val()
+			return inputelm.find("textarea").val();
 		},
 		getValueLength : function() {
 			return inputelm.find("textarea").val().length;
@@ -49,6 +49,7 @@ BetterExamples.editors.default = function(inputelm) {
 			return 0;
 		},
 		fitToScrollHeight : function(scrollToBottom) {
+			console.log("fitting!");
 			var firstHeight = inputelm.find("textarea").height();
 			inputelm.find("textarea").css("height", inputelm.find("textarea").get(0).scrollHeight + "px"); 
 			// If the typed text caused our textarea to expand, scroll to bottom of parent element
