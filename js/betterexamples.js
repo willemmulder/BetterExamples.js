@@ -11,14 +11,19 @@ BetterExamples = {
 	instances : {},
 	getInstance : function(id) {
 		return this.instances[id];
-	}
+	},
+	editors : {} // Load the appropriate betterexamples.editor.[name].js file to enable an editor
 };
+
 BetterExample = function(inputelm, outputelm, options) {
 
 	// ============
 	// Variables
 	// ============
-	var options = options || {};
+	var defaultOptions = {
+		"editor" : "default"
+	};
+	var options = $.extend(defaultOptions, options);
 
 	var id =  options.id || "instance_" + Math.floor(Math.random()*100000000000);
 	var inDebug = false;
@@ -151,106 +156,10 @@ BetterExample = function(inputelm, outputelm, options) {
 	}
 
 	function createInputField(inputelm) {
-		if (options.editor && options.editor == "codemirror") {
-			// Codemirror integration
-			var editor = CodeMirror.fromTextArea(
-				$(inputelm).get(0), {
-					lineNumbers: true,
-					matchBrackets: true,
-					extraKeys: {"Enter": "newlineAndIndentContinueComment"}
-				}
-			);
-			editor.setValue(inputelm.html());
-			$(editor.getWrapperElement()).addClass("input");
-
-			return { 
-				getInputWrapper : function() {
-					return $(editor.getWrapperElement()).find(".CodeMirror-lines > div:first > div:last");
-				},
-				getEventWrapper : function() {
-					return $(editor.getWrapperElement()).closest(".CodeMirror.input");
-				},
-				getValue : function() {
-					return editor.getValue();
-				},
-				getValueLength : function() {
-					return editor.getValue().length;
-				},
-				getLineHeight : function() {
-					//return $(editor.getInputField()).find(".CodeMirror-lines").height() / editor.lineCount();
-					return editor.defaultTextHeight();
-				},
-				getLinesOffsetTop : function() {
-					var wrapperOffsetTop = $(editor.getWrapperElement()).offset().top;
-					var absoluteLinesOffsetTop = $(editor.getWrapperElement()).find(".CodeMirror-lines > div").first().offset().top;
-					return absoluteLinesOffsetTop - wrapperOffsetTop;
-				},
-				fitToScrollHeight : function() { 
-					// Is this even supported?
-				},
-				isClearingWithFade : function() {
-					return false;
-				}
-			};
+		if (BetterExamples.editors[options.editor]) {
+			return BetterExamples.editors[options.editor](inputelm);
 		} else {
-			// use wrap="off" because white-space: nowrap does not function correctly in IE
-			var inputInnerElm = $("<textarea style='outline: none; z-index:10; position: relative; width: 100%; height: 95%; background: rgba(255,255,255,0); border: none; text-decoration: none; overflow-y: hidden; overflow-x: auto;' wrap='off'></textarea>");
-			// Save originalTextAreaContent for restore
-			originalTextAreaContent = inputelm.html();
-			inputInnerElm.html(originalTextAreaContent);
-			inputelm.html(inputInnerElm);
-
-			return { 
-				getInputWrapper : function() {
-					return inputelm;
-				},
-				getEventWrapper : function() {
-					return inputelm;
-				},
-				getValue : function() {
-					return inputelm.find("textarea").val()
-				},
-				getValueLength : function() {
-					return inputelm.find("textarea").val().length;
-				},
-				getLineHeight : function() {
-					var checkelm = inputelm.find("textarea");
-					var inputText = checkelm.html();
-					checkelm.addClass("betterExampleNoSetHeight");
-					// We need multiple lines in the textarea in order to push the scrollHeight above the 'auto' height of a standard textarea
-					// as to obtain a scrollHeight that is determined by the height of the lines instead of the 'auto' height
-					checkelm.html("line 1\r\nline 2\r\nline 3\r\nline 4\r\nline 5\r\nline 6\r\nline 7\r\nline 8\r\nline 9\r\nline 10");
-					var inputLineHeight = checkelm.get(0).scrollHeight / 10;
-					if (!inputLineHeight) {
-						// Element is (probably) hidden. Show the element, and all of its parents, and afterwards hide them again
-						checkelm.parents().addClass("betterExampleVisible");
-						inputLineHeight = checkelm.get(0).scrollHeight / 10;
-						checkelm.html(inputText);
-						fitToScrollHeight();
-						checkelm.parents().removeClass("betterExampleVisible");
-					} else {
-						checkelm.html(inputText);
-					}
-					checkelm.removeClass("betterExampleNoSetHeight");
-					return inputLineHeight;
-				},
-				getLinesOffsetTop : function() {
-					return 0;
-				},
-				fitToScrollHeight : function(scrollToBottom) {
-					var firstHeight = inputelm.find("textarea").height();
-					inputelm.find("textarea").css("height", inputelm.find("textarea").get(0).scrollHeight + "px"); 
-					// If the typed text caused our textarea to expand, scroll to bottom of parent element
-					if (scrollToBottom && inputelm.find("textarea").height() > firstHeight) {
-						inputelm.parent().animate({
-							scrollTop: inputelm.find("textarea").height()
-						}, 0);
-					}
-				},
-				isClearingWithFade : function() {
-					return true;
-				}
-			};
+			return BetterExamples.editors["default"](inputelm);
 		}
 	}
 
@@ -384,8 +293,8 @@ BetterExample = function(inputelm, outputelm, options) {
 			if (type.indexOf("error")>-1) { extraStyle = "background: #CC1919; color: #fff;" }
 			var line = currentLine;
 			var offsetTop = inputFieldFunctions.getLinesOffsetTop();
-			var start = function(zindex, passedOffsetTop) {
-				return "<div class='betterExamplesLine' line='" + line + "' style='background: #eef; position:absolute; left: 0px; top:" + (passedOffsetTop + (inputLineHeight*(line-1))) + "px; height: " + inputLineHeight + "px; display: block; width: 100%; z-index: " + zindex + "; overflow: hidden;' onMouseOver='$(this).attr(\"backupZindex\",$(this).css(\"z-index\")); $(this).attr(\"backupHeight\",$(this).css(\"height\")); $(this).css(\"height\",\"auto\").css(\"z-index\",\"100\")' onMouseOut='$(this).css(\"height\",$(this).attr(\"backupHeight\")).css(\"z-index\",$(this).attr(\"backupZindex\"))'>";
+			var start = function(passedOffsetTop) {
+				return "<div class='betterExamplesLine' line='" + line + "' style='background: #eef; position:absolute; left: 0px; top:" + (passedOffsetTop + (inputLineHeight*(line-1))) + "px; height: " + inputLineHeight + "px; display: block; width: 100%; overflow: hidden;' onMouseOver='$(this).attr(\"backupZindex\",$(this).css(\"z-index\")); $(this).attr(\"backupHeight\",$(this).css(\"height\")); $(this).css(\"height\",\"auto\").css(\"z-index\",\"100\")' onMouseOut='$(this).css(\"height\",$(this).attr(\"backupHeight\")).css(\"z-index\",$(this).attr(\"backupZindex\"))'>";
 			}
 			var output = "<div style='width: 130px; background: #dde; "+ extraStyle + " display: inline-block; z-index: 3;'>" + type + "</div> ";
 			if (obj instanceof Function) {
@@ -397,8 +306,8 @@ BetterExample = function(inputelm, outputelm, options) {
 				output += JSON.stringify(obj, null, 4);
 			}
 			var end = "</div>";
-			outputelm.append(start(3,offsetTop) + output + end);
-			inputFieldFunctions.getInputWrapper().prepend(start(-1,0) + "&nbsp;" + end);
+			outputelm.append(start(offsetTop) + output + end);
+			inputFieldFunctions.prependContent(start(0) + "&nbsp;" + end);
 		},
 		"getId" : function() {
 			return id;
