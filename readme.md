@@ -14,10 +14,10 @@ http://creativecommons.org/licenses/by-sa/3.0/
 Version
 -----------------
 * Todo
-  * Make BetterExamples.js work with CodeMirror  
   * Save edited code with localStorage  
 
 * Trunk  
+  + Make BetterExamples.js work with CodeMirror  
   + Control+R or F9 runs the code  
   + One can restore edited code to the original example code  
 
