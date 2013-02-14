@@ -105,15 +105,15 @@ BetterExample = function(inputelm, outputelm, options) {
 	function positionMessages() {
 		// Loop over the error messages and show as much of their info as possible (i.e. without overlapping other messages)
 		outputelm.find(".betterExamplesLine").each(function() {
-			var currentLineNumber = $(this).attr("line");
+			var currentLineNumber = $(this).attr("line")*1;
 			var lowestNextLineNumber = -1;
 			$(this).siblings(".betterExamplesLine").each(function() {
-				if ($(this).attr("line") > currentLineNumber && (lowestNextLineNumber == -1 || lowestNextLineNumber > $(this).attr("line")) ) {
+				if ($(this).attr("line")*1 > currentLineNumber && (lowestNextLineNumber == -1 || lowestNextLineNumber > $(this).attr("line")) ) {
 					lowestNextLineNumber = $(this).attr("line");
 				}
 			});
 			if (lowestNextLineNumber != -1) {
-				var space = lowestNextLineNumber - $(this).attr("line");
+				var space = lowestNextLineNumber - currentLineNumber;
 				// See how much height the element would take
 				$(this).css("height", "auto");
 				// Now restrict the height if the height=auto would take up more height than there is space
@@ -340,6 +340,12 @@ BetterExample = function(inputelm, outputelm, options) {
 		},
 		"goToNextStep" : function() {
 			//sleepingForDebug = false;
+		},
+		"on" : function() {
+			inputFieldFunctions.getEventWrapper().on.apply(
+				inputFieldFunctions.getEventWrapper(),
+				arguments
+			);
 		}
 	};
 	BetterExamples.instances[id] = facade;
