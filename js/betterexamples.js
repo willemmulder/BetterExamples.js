@@ -268,6 +268,9 @@ BetterExample = function(inputelm, outputelm, options) {
 				fitToScrollHeight();
 			},1);
 		},
+		"getCode" : function() {
+			return inputFieldFunctions.getValue();
+		},
 		"clear" : function() { 
 			inputelm.find("textarea").val("");
 			this.clearOutput(inputFieldFunctions.isClearingWithFade());
