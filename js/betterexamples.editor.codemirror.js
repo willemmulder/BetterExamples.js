@@ -24,6 +24,9 @@ BetterExamples.editors.codemirror = function(inputelm) {
 	editor.setSize(null, "auto");
 
 	var facade = { 
+		clear : function() {
+			editor.setValue("");
+		},
 		getInputWrapper : function() {
 			return $(editor.getWrapperElement()).find(".CodeMirror-lines > div:first");
 		},
@@ -33,6 +36,9 @@ BetterExamples.editors.codemirror = function(inputelm) {
 		},
 		getValue : function() {
 			return editor.getValue();
+		},
+		setValue : function(value) {
+			return editor.setValue(value);
 		},
 		getValueLength : function() {
 			return editor.getValue().length;

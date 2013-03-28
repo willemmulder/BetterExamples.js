@@ -259,11 +259,11 @@ BetterExample = function(inputelm, outputelm, options) {
 		},
 		"restoreCode" : function() {
 			this.clear();
-			inputelm.find("textarea").val(originalTextAreaContent);
+			inputFieldFunctions.setValue(originalTextAreaContent);
 		},
 		"setCode" : function(code) {
 			this.clear();
-			inputelm.find("textarea").val(code);
+			inputFieldFunctions.setValue(code);
 			setTimeout(function() {
 				fitToScrollHeight();
 			},1);
@@ -272,7 +272,7 @@ BetterExample = function(inputelm, outputelm, options) {
 			return inputFieldFunctions.getValue();
 		},
 		"clear" : function() { 
-			inputelm.find("textarea").val("");
+			inputFieldFunctions.clear();
 			this.clearOutput(inputFieldFunctions.isClearingWithFade());
 		},
 		"clearOutput" : function(withFade) { 

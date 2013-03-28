@@ -12,6 +12,9 @@ BetterExamples.editors.default = function(inputelm) {
 	inputelm.html(inputInnerElm);
 
 	var facade = { 
+		clear : function() {
+			inputelm.find("textarea").val("");
+		},
 		getInputWrapper : function() {
 			return inputelm;
 		},
@@ -20,6 +23,9 @@ BetterExamples.editors.default = function(inputelm) {
 		},
 		getValue : function() {
 			return inputelm.find("textarea").val();
+		},
+		setValue : function(value) {
+			return inputelm.find("textarea").val(value);
 		},
 		getValueLength : function() {
 			return inputelm.find("textarea").val().length;
