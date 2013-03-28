@@ -4,6 +4,8 @@
 */
 
 BetterExamples.editors.codemirror = function(inputelm) {
+	// Get class from input class, and store it for setting on the CodeMirror instance
+	var classes = $(inputelm).first().attr("class").split(" ");
 	//var height = $(inputelm).height();
 	var editor = CodeMirror.fromTextArea(
 		$(inputelm).get(0), {
@@ -13,7 +15,12 @@ BetterExamples.editors.codemirror = function(inputelm) {
 		}
 	);
 	editor.setValue(inputelm.html());
-	$(editor.getWrapperElement()).addClass("input");
+	for (var index in classes) {
+		if (classes.hasOwnProperty(index)) {
+			$(editor.getWrapperElement()).addClass(classes[index]);
+		}
+	}
+	
 	editor.setSize(null, "auto");
 
 	var facade = { 
@@ -21,7 +28,7 @@ BetterExamples.editors.codemirror = function(inputelm) {
 			return $(editor.getWrapperElement()).find(".CodeMirror-lines > div:first");
 		},
 		getEventWrapper : function() {
-			return $(editor.getWrapperElement()).closest(".CodeMirror.input")
+			return $(editor.getWrapperElement())
 			.add( $(editor.getWrapperElement()).find(".CodeMirror-cursor") );
 		},
 		getValue : function() {
