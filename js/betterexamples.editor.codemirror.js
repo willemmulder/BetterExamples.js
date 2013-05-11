@@ -14,7 +14,7 @@ BetterExamples.editors.codemirror = function(inputelm) {
 			extraKeys: {"Enter": "newlineAndIndentContinueComment"}
 		}
 	);
-	editor.setValue(inputelm.html());
+	editor.setValue($(inputelm).text());
 	for (var index in classes) {
 		if (classes.hasOwnProperty(index)) {
 			$(editor.getWrapperElement()).addClass(classes[index]);
