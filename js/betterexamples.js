@@ -48,7 +48,7 @@ BetterExample = function(inputelm, outputelm, options) {
 	// ============
 	// createInputField returns an object with several functions that are used to interact with the editor
 	var inputFieldFunctions = createInputField(inputelm);
-	
+
 	// Catch keydowns, blur and focus to check for code-changes
 	// Catch Control+R or F9 to run code
 	inputFieldFunctions.getEventWrapper().on("keydown", function(event) {
@@ -59,22 +59,22 @@ BetterExample = function(inputelm, outputelm, options) {
 		} else {
 			fitToScrollHeight();
 			inputFieldValueLength = inputFieldFunctions.getValueLength();
-			facade.clearOutput(inputFieldFunctions.isClearingWithFade()); 
+			facade.clearOutput(inputFieldFunctions.isClearingWithFade());
 		}
 	});
-	
+
 	var functionBackups = [];
 	var inputLineHeight = inputFieldFunctions.getLineHeight();
-	
+
 	// Set height of textarea to fit the content
 	inputFieldFunctions.fitToScrollHeight();
-	
+
 	// ============
 	// Inner functions
 	// ============
 	function visit(node, visitFunction, parentsList) {
 		var parents = (typeof parentsList === 'undefined') ? [] : parentsList;
-	
+
 		visitFunction = visitFunction || false;
 		if (visitFunction && visitFunction(node,parentsList) == false) {
 			return;
@@ -90,7 +90,7 @@ BetterExample = function(inputelm, outputelm, options) {
 			}
 		}
 	};
-	
+
 	function restoreFunctions() {
 		// Restore the altered functions
 		for(functionID in functionBackups) {
@@ -101,7 +101,7 @@ BetterExample = function(inputelm, outputelm, options) {
 			}
 		}
 	}
-	
+
 	function positionMessages() {
 		// Loop over the error messages and show as much of their info as possible (i.e. without overlapping other messages)
 		outputelm.find(".betterExamplesLine").each(function() {
@@ -125,7 +125,7 @@ BetterExample = function(inputelm, outputelm, options) {
 			}
 		});
 	}
-	
+
 	function drawDebugBar() {
 		ielm = inputelm.find(".betterExamplesDebugBar").first();
 		oelm = outputelm.find(".betterExamplesDebugBar").first();
@@ -141,7 +141,7 @@ BetterExample = function(inputelm, outputelm, options) {
 			ielm.add(oelm).css("top", (inputLineHeight*(line-1)) + "px");
 		}
 	}
-	
+
 	function removeDebugBar() {
 		outputelm.find(".betterExamplesDebugBar").remove();
 		inputelm.find(".betterExamplesDebugBar").remove();
@@ -179,7 +179,7 @@ BetterExample = function(inputelm, outputelm, options) {
 			// Set alert or log functions to redirect to the output window
 			var instance = this;
 			functionBackups["alert"] = window.alert;
-			window.alert = function(output) { 
+			window.alert = function(output) {
 				instance.log(output);
 			}
 			if (typeof(console) != "undefined" && typeof(console.log) != "undefined") {
@@ -271,19 +271,19 @@ BetterExample = function(inputelm, outputelm, options) {
 		"getCode" : function() {
 			return inputFieldFunctions.getValue();
 		},
-		"clear" : function() { 
+		"clear" : function() {
 			inputFieldFunctions.clear();
 			this.clearOutput(inputFieldFunctions.isClearingWithFade());
 		},
-		"clearOutput" : function(withFade) { 
+		"clearOutput" : function(withFade) {
 			if (withFade) {
-				inputFieldFunctions.getInputWrapper().find(".betterExamplesLine").fadeOut(function() { 
-					inputFieldFunctions.getInputWrapper().find(".betterExamplesLine").remove(); 
+				inputFieldFunctions.getInputWrapper().find(".betterExamplesLine").fadeOut(function() {
+					inputFieldFunctions.getInputWrapper().find(".betterExamplesLine").remove();
 				});
 				outputelm.find("*").fadeOut(function() { outputelm.html(""); });
 				if (outputelm.find("*").size() == 0) {
 					outputelm.html("");
-				}	
+				}
 			} else {
 				inputFieldFunctions.getInputWrapper().find(".betterExamplesLine").remove();
 				outputelm.html("");
@@ -306,7 +306,12 @@ BetterExample = function(inputelm, outputelm, options) {
 				func = func.replace(/BetterExamples\.getInstance\([^\)]+\)\.enterStep\([0-9]+\)+\;/ig, "");
 				output += func;
 			} else {
-				output += JSON.stringify(obj, null, 4);
+				// JSON.stringify doesn't recognize NaN but will print it as "null"
+				if (Number.isNaN(obj)) {
+					output += "NaN";
+				} else {
+					output += JSON.stringify(obj, null, 4);
+				}
 			}
 			var end = "</div>";
 			outputelm.append(start(offsetTop) + output + end);

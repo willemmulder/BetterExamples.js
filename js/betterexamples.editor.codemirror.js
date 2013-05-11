@@ -20,10 +20,10 @@ BetterExamples.editors.codemirror = function(inputelm) {
 			$(editor.getWrapperElement()).addClass(classes[index]);
 		}
 	}
-	
+
 	editor.setSize(null, "auto");
 
-	var facade = { 
+	var facade = {
 		clear : function() {
 			editor.setValue("");
 		},
@@ -52,7 +52,7 @@ BetterExamples.editors.codemirror = function(inputelm) {
 			var absoluteLinesOffsetTop = $(editor.getWrapperElement()).find(".CodeMirror-lines > div").first().offset().top;
 			return absoluteLinesOffsetTop - wrapperOffsetTop;
 		},
-		fitToScrollHeight : function() { 
+		fitToScrollHeight : function() {
 			// Happens automatically, because height is set to "auto"
 		},
 		isClearingWithFade : function() {
